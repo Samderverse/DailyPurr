@@ -111,7 +111,10 @@ const CORDER = shuffle(COMPS.map((_, i) => i), rng(hash('complaints')));
 const complaintFor = d => COMPS[CORDER[((d % CORDER.length) + CORDER.length) % CORDER.length]];
 const rulings = () => store.get('dp_rulings', {});
 const appeals = () => store.get('dp_appeals', {});
-const mcomps = () => store.get('dp_mcomps', []);
+const mgmtAll = () => store.get('dp_mcomps', []); // everything Management has filed: complaints and praise
+const isPraise = m => m.kind === 'praise';
+const mcomps = () => mgmtAll().filter(m => !isPraise(m));
+const praises = () => mgmtAll().filter(isPraise);
 // For a cat-v-cat complaint that's been ruled on: who won and who lost (after any appeal)
 function outcome(d) {
   const r = rulings()[d], c = complaintFor(d);
@@ -126,7 +129,8 @@ const hasAppeal = d => hash('appeal' + d) % 10 < 7;
 function moodOf(id) {
   const E = P.MOOD_EVENTS;
   if (special && special.cats && special.cats.includes(id)) return E[special.kind][id];
-  if (mcomps().some(m => m.d === day && m.against === id)) return E.accused[id];
+  const latest = mgmtAll().filter(m => m.d === day && m.against === id).pop();
+  if (latest) return isPraise(latest) ? E.praised[id] : E.accused[id];
   for (const d of [day, day - 1]) { const o = outcome(d); if (o && o.lose === id) return E.sulking[id]; if (o && o.win === id) return E.smug[id]; }
   return pickBy(P.MOODS[id], 'mood' + day + id);
 }
@@ -301,17 +305,18 @@ function renderArchive() {
 const nameOf = id => (id === 'management' ? 'Management' : CATS[id].name);
 const photoOf = id => (id === 'management' ? null : CATS[id].photo);
 function compBadge() { $('#compNew').hidden = store.get('dp_cseen', null) === day; }
-$('#compBtn').onclick = () => { store.set('dp_cseen', day); compBadge(); $('#fileForm').hidden = true; renderComplaints(); open('m-comp'); };
+$('#compBtn').onclick = () => { store.set('dp_cseen', day); compBadge(); $('#fileForm').hidden = true; fileAgainst = null; renderComplaints(); open('m-comp'); };
 
-// Employee of the Month: fusses + cases won − cases lost − complaints from Management
+// Employee of the Month: fusses + cases won − cases lost − complaints from Management + praise from Management
 function scores(from, to) {
   const f = fussSum(from, to), s = {};
-  IDS.forEach(i => { s[i] = { id: i, pts: f[i], fuss: f[i], won: 0, lost: 0, mg: 0 }; });
+  IDS.forEach(i => { s[i] = { id: i, pts: f[i], fuss: f[i], won: 0, lost: 0, mg: 0, pr: 0 }; });
   for (let d = from; d <= to; d++) { const o = outcome(d); if (o) { s[o.win].won++; s[o.win].pts += 3; s[o.lose].lost++; s[o.lose].pts -= 2; } }
   mcomps().filter(m => m.d >= from && m.d <= to).forEach(m => { s[m.against].mg++; s[m.against].pts -= 2; });
+  praises().filter(m => m.d >= from && m.d <= to).forEach(m => { s[m.against].pr++; s[m.against].pts += 2; });
   return IDS.map(i => s[i]).sort((a, b) => b.pts - a.pts || b.fuss - a.fuss || hash(a.id + from) - hash(b.id + from));
 }
-const active = list => list.some(x => x.fuss || x.won || x.lost || x.mg);
+const active = list => list.some(x => x.fuss || x.won || x.lost || x.mg || x.pr);
 function lastMonthWinner() {
   const ms = monthStart(day), prevStart = monthStart(ms - 1), list = scores(prevStart, ms - 1);
   return active(list) ? { id: list[0].id, month: monthName(prevStart), start: prevStart } : null;
@@ -319,22 +324,25 @@ function lastMonthWinner() {
 function renderEotm() {
   const ms = monthStart(day), now = scores(ms, day), prev = lastMonthWinner(), wk = fussSum(weekStart(day), day);
   const max = Math.max(1, ...now.map(x => Math.abs(x.pts)));
-  const detail = x => [x.fuss && `${x.fuss} ${x.fuss === 1 ? 'fuss' : 'fusses'}`, x.won && `${x.won} won`, x.lost && `${x.lost} lost`, x.mg && `${x.mg} from Management`].filter(Boolean).join(' · ') || 'nothing yet';
+  const detail = x => [x.fuss && `${x.fuss} ${x.fuss === 1 ? 'fuss' : 'fusses'}`, x.won && `${x.won} won`, x.lost && `${x.lost} lost`, x.pr && `${x.pr} ${x.pr === 1 ? 'praise' : 'praises'}`, x.mg && `${x.mg} ${x.mg === 1 ? 'complaint' : 'complaints'} from Management`].filter(Boolean).join(' · ') || 'nothing yet';
   $('#eotm').innerHTML = `
     ${prev ? `<div class="winner" style="--c:${CATS[prev.id].color}"><img src="${CATS[prev.id].photo}" alt=""><div><span class="lbl">🏆 ${esc(prev.month)}’s Employee of the Month</span><b>${esc(CATS[prev.id].name)}</b><p>“${esc(pickBy(P.EOTM.win[prev.id], 'w' + prev.start))}”</p></div></div>` : ''}
     <h3 class="lbl">${esc(monthName(day))} so far</h3>
     ${now.map((x, r) => `<div class="standing" style="--c:${CATS[x.id].color}"><span class="pos">${r + 1}</span><img src="${CATS[x.id].photo}" alt=""><div><b>${esc(CATS[x.id].name)} <em>${x.pts} pts</em></b><span class="bar"><i style="width:${Math.max(3, Math.max(0, x.pts) / max * 100)}%"></i></span><small>${esc(detail(x))}</small></div></div>`).join('')}
-    <p class="fine">Points: a fuss is 1, a case won is 3, a case lost is −2, a complaint from Management is −2. Fusses this week: ${IDS.map(i => `${CATS[i].name} ${wk[i]}`).join(' · ')}.</p>`;
+    <p class="fine">Points: a fuss is 1, a case won is 3, a case lost is −2, praise from Management is 2, a complaint from Management is −2. Fusses this week: ${IDS.map(i => `${CATS[i].name} ${wk[i]}`).join(' · ')}.</p>`;
 }
 function renderMgmt() {
-  const list = mcomps().slice().reverse().slice(0, 12);
-  $('#mgmtList').innerHTML = list.length ? `<h3 class="lbl">Filed by Management</h3>` + list.map(m => `<article class="complaint mg" style="--c:${CATS[m.against].color}">
-      <header><span>Ref. M-${String(m.id).slice(-4)}</span><span>${esc(whenLabel(m.d))}</span></header>
-      <div class="parties"><span class="duo"><img src="${CATS[m.against].photo}" alt=""></span><span class="who">Management<i>v</i>${esc(CATS[m.against].name)}</span><span class="type">${esc(m.type)}</span></div>
+  const list = mgmtAll().slice().reverse().slice(0, 12);
+  $('#mgmtList').innerHTML = list.length ? `<h3 class="lbl">From Management</h3>` + list.map(m => {
+    const p = isPraise(m), c = m.against;
+    return `<article class="complaint mg${p ? ' praise' : ''}" style="--c:${CATS[c].color}">
+      <header><span>${p ? 'Commendation' : 'Ref.'} ${p ? 'C' : 'M'}-${String(m.id).slice(-4)}</span><span>${esc(whenLabel(m.d))}</span></header>
+      <div class="parties"><span class="duo"><img src="${CATS[c].photo}" alt=""></span><span class="who">${p ? `🌟 ${esc(CATS[c].name)}` : `Management<i>v</i>${esc(CATS[c].name)}`}</span><span class="type">${esc(m.type)}</span></div>
       ${m.text ? `<p class="ctext">“${esc(m.text)}”</p>` : ''}
-      <p class="creply"><b>${esc(CATS[m.against].name)} responds:</b> ${esc(m.reply)}</p>
-      ${m.counter ? `<p class="counter">${esc(m.counter)}</p>` : ''}
-      <span class="stamp green">On file</span></article>`).join('') : '';
+      <p class="creply"><b>${esc(CATS[c].name)} ${p ? 'says' : 'responds'}:</b> ${esc(m.reply)}</p>
+      ${m.counter ? `<p class="${p ? 'jealous' : 'counter'}">${esc(m.counter)}</p>` : ''}
+      <span class="stamp green">${p ? 'Commended' : 'On file'}</span></article>`;
+  }).join('') : '';
 }
 function renderComplaints() {
   renderEotm(); renderMgmt();
@@ -384,25 +392,46 @@ function renderComplaints() {
     renderComplaints(); renderCats();
   });
 }
-// Management files a complaint
-let fileAgainst = null;
-$('#fileBtn').onclick = () => {
-  const f = $('#fileForm'); f.hidden = !f.hidden; if (f.hidden) return;
-  fileAgainst = null;
-  $('#fileWho').innerHTML = IDS.map(id => `<button class="chip who" type="button" data-w="${id}" aria-pressed="false" style="--c:${CATS[id].color}"><img src="${CATS[id].photo}" alt="">${CATS[id].name}</button>`).join('');
+// Management files a complaint, or gives praise
+let fileAgainst = null, fileMode = 'complaint';
+function openFileForm(mode) {
+  const f = $('#fileForm');
+  if (!f.hidden && fileMode === mode) { f.hidden = true; return; }
+  fileMode = mode; f.hidden = false; f.classList.toggle('praise', mode === 'praise');
+  const praise = mode === 'praise';
+  $('#fileWhoLbl').textContent = praise ? 'Praise for' : 'Complaint against';
+  $('#fileTypeLbl').textContent = praise ? 'What for?' : 'Type of complaint';
+  $('#fileText').placeholder = praise ? 'What did he do?' : 'What happened?';
+  $('#fileSubmit').textContent = praise ? 'Give praise' : 'Lodge complaint';
+  $('#fileWho').innerHTML = IDS.map(id => `<button class="chip who" type="button" data-w="${id}" aria-pressed="${fileAgainst === id}" style="--c:${CATS[id].color}"><img src="${CATS[id].photo}" alt="">${CATS[id].name}</button>`).join('');
   $$('#fileWho [data-w]').forEach(b => b.onclick = () => { fileAgainst = b.dataset.w; $$('#fileWho [data-w]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
-  $('#fileType').innerHTML = P.MGMT_TYPES.map(t => `<option>${esc(t)}</option>`).join('');
+  $('#fileType').innerHTML = (praise ? P.PRAISE_TYPES : P.MGMT_TYPES).map(t => `<option>${esc(t)}</option>`).join('');
   $('#fileText').value = '';
-};
+  f.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+$('#fileBtn').onclick = () => openFileForm('complaint');
+$('#praiseBtn').onclick = () => openFileForm('praise');
 $('#fileForm').onsubmit = e => {
   e.preventDefault();
-  if (!fileAgainst) { toast('Who is the complaint against?'); return; }
+  const praise = fileMode === 'praise';
+  if (!fileAgainst) { toast(praise ? 'Who are you praising?' : 'Who is the complaint against?'); return; }
   const type = $('#fileType').value, id = Date.now(), cat = fileAgainst;
-  const pool = (P.MGMT[cat][type] || P.MGMT[cat]['Something else']);
-  const counter = hash('c' + id) % 10 < 4 ? pickBy(P.COUNTER[cat], 'cc' + id) : '';
-  const list = mcomps(); list.push({ id, d: day, against: cat, type, text: $('#fileText').value.trim().slice(0, 200), reply: pickBy(pool, 'r' + id), counter });
-  store.set('dp_mcomps', list.slice(-60));
-  $('#fileForm').hidden = true; sound('chirp', cat); toast(`Complaint lodged against ${CATS[cat].name}`);
+  const text = $('#fileText').value.trim().slice(0, 200);
+  let entry;
+  if (praise) {
+    const pool = P.PRAISE[cat][type] || P.PRAISE[cat]['Something else'];
+    const others = IDS.filter(i => i !== cat), jealous = others[hash('j' + id) % 2];
+    const counter = hash('pj' + id) % 10 < 5 ? fill(pickBy(P.PRAISE_JEALOUS[jealous], 'pjl' + id), { who: CATS[cat].name }) : '';
+    entry = { id, d: day, kind: 'praise', against: cat, type, text, reply: pickBy(pool, 'r' + id), counter };
+  } else {
+    const pool = P.MGMT[cat][type] || P.MGMT[cat]['Something else'];
+    const counter = hash('c' + id) % 10 < 4 ? pickBy(P.COUNTER[cat], 'cc' + id) : '';
+    entry = { id, d: day, against: cat, type, text, reply: pickBy(pool, 'r' + id), counter };
+  }
+  const list = mgmtAll(); list.push(entry); store.set('dp_mcomps', list.slice(-80));
+  $('#fileForm').hidden = true; fileAgainst = null;
+  if (praise) { sound('purr', cat); const r = $('#praiseBtn').getBoundingClientRect(); hearts(r.left + r.width / 2, r.top, 6, ['🌟', '🧡', '✨', '🐾']); toast(`${CATS[cat].name} has been commended`); }
+  else { sound('chirp', cat); toast(`Complaint lodged against ${CATS[cat].name}`); }
   renderComplaints(); renderCats();
   $('#mgmtList').scrollIntoView({ behavior: 'smooth', block: 'start' });
 };

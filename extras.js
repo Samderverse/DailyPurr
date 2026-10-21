@@ -14,6 +14,7 @@ PURR.MOOD_EVENTS = {
   sulking: { angus: '😤 Sulking (with dignity)', leo: '😿 Sulking', ollie: '😾 FURIOUS' },
   smug: { angus: '😏 Vindicated', leo: '😼 Smug', ollie: '😎 Untouchable' },
   accused: { angus: '🧾 Preparing a statement', leo: '😰 Under investigation', ollie: '🙊 Pleading the fifth' },
+  praised: { angus: '🏅 Quietly delighted', leo: '🥹 Glowing', ollie: '🌟 Insufferable' },
   birthday: { angus: '🎂 Birthday boy', leo: '🎂 Birthday boy', ollie: '🎂 BIRTHDAY BOY' },
   gotcha: { angus: '🏡 Gotcha day', leo: '🏡 Gotcha day', ollie: '🏡 GOTCHA DAY' }
 };
@@ -210,4 +211,45 @@ PURR.QUIZ = {
     mid: { angus: ['Respectable. Not perfect, but respectable.', 'A solid effort. You may have a slow blink.'], leo: ['good job!! that’s really good!!', 'you know lots of things. I’m impressed. and a bit scared.'], ollie: ['NOT BAD. I would’ve got more. (I wouldn’t)', 'pretty good!!! treat time?'] },
     top: { angus: ['Full marks. Clearly I have taught you well.', 'Perfect. I am, for once, impressed.'], leo: ['ALL OF THEM?? you’re a genius!!', 'full marks!! can you help me with the hoover now?'], ollie: ['FULL MARKS!!! YOU’RE A CAT GENIUS 🧠', 'PERFECT SCORE. you may now feed me in celebration.'] }
   }
+};
+
+/* ---------- Management gives praise: the cat responds, and sometimes a housemate has views ---------- */
+PURR.PRAISE_TYPES = ['Good boy', 'Excellent cuddles', 'Being brave', 'Making me laugh', 'Keeping me company', 'Being gentle', 'Good at the vet', 'Something else'];
+PURR.PRAISE = {
+  angus: {
+    'Good boy': ['Naturally. I have been a good boy for many years. It’s nice to see it in writing.', 'Thank you. I shall try not to let it go to my head. It already has.'],
+    'Excellent cuddles': ['I don’t do cuddles. I grant an audience. But thank you.', 'I allowed four minutes of lap time. That is generous, by my standards.'],
+    'Being brave': ['Bravery comes naturally to the eldest. Unlike some.', 'I did not flinch. I never flinch. Leo, take notes.'],
+    'Making me laugh': ['I was not trying to be funny. But I accept the praise.', 'Comedy is beneath me. I’m glad you enjoyed it.'],
+    'Keeping me company': ['Someone has to supervise you. I’m happy to do it.', 'I was with you all evening. In the next room. Watching.'],
+    'Being gentle': ['A gentleman is always gentle. Except at dinner.', 'Gentleness is a sign of maturity. I have plenty of both.'],
+    'Good at the vet': ['I conducted myself with dignity at the vet. As always.', 'I behaved impeccably. Please tell Leo.'],
+    'Something else': ['Thank you. It’s about time this was recognised.', 'I accept this commendation with dignity. And ham, if possible.']
+  },
+  leo: {
+    'Good boy': ['I’m a good boy?? I’m a GOOD BOY. I’m going to hide now because I’m so happy.', 'really? me? I haven’t bopped anyone all day. ok, one person.'],
+    'Excellent cuddles': ['I stayed on your lap the whole time! even when you moved a bit!', 'cuddles are my favourite. don’t tell Angus.'],
+    'Being brave': ['I WAS brave, wasn’t I. I only hid twice.', 'I came out from under the bed ALL BY MYSELF.'],
+    'Making me laugh': ['I didn’t mean to be funny. I just fell off the sofa. but thank you!!', 'you laughed! that’s good, right? that’s good.'],
+    'Keeping me company': ['I like being with you. it’s the safest place in the flat.', 'I’ll keep you company forever. from a slight distance.'],
+    'Being gentle': ['I didn’t bop anyone. I wanted to. I didn’t.', 'gentle paws. no claws. I’m getting better at it.'],
+    'Good at the vet': ['I was SO scared but I was good. can I have a treat? I deserve ten.', 'I only cried a bit at the vet. that’s brave, right?'],
+    'Something else': ['nobody ever says nice things about me. thank you. (purrs very quietly)', 'this is the best day of my life.']
+  },
+  ollie: {
+    'Good boy': ['I KNOW. I’M THE BEST BOY. finally someone said it.', 'GOOD BOY OLLIE. that’s me. I’m the good boy.'],
+    'Excellent cuddles': ['I’m the BEST at cuddles. I put my whole face on you.', 'cuddle champion 🏆 (I also bit you a bit. with love.)'],
+    'Being brave': ['I’m not scared of ANYTHING. except the hoover. and the dark. and Angus.', 'I fought the box and the box LOST. well. it was a draw.'],
+    'Making me laugh': ['I’m HILARIOUS. I know. it’s a gift.', 'I fell in the bath on purpose. (I did not do it on purpose)'],
+    'Keeping me company': ['I’m always with you!! sometimes ON you. that counts.', 'I followed you into EVERY room. you’re welcome.'],
+    'Being gentle': ['I didn’t use my fangs ONCE. ok twice. ok it was a lot but they were gentle fangs.', 'gentle Ollie mode activated. for five minutes.'],
+    'Good at the vet': ['the vet said I was “a character”. I think that’s a compliment.', 'I was SO good at the vet. I only knocked over one thing.'],
+    'Something else': ['PRAISE!!! more please. I accept praise and treats.', 'I’m framing this. I don’t know how. I don’t have hands.']
+  }
+};
+// A housemate reacts to someone else being praised: {who} = the praised cat
+PURR.PRAISE_JEALOUS = {
+  angus: ['Angus: “A commendation for {who}. I shall be requesting one of my own.”', 'Angus: “{who}? Really? Very well.”'],
+  leo: ['Leo: “what about me? I was good today too. mostly.”', 'Leo: “{who} gets praise and I get the hoover. ok.”'],
+  ollie: ['Ollie: “EXCUSE ME. I am RIGHT HERE being GOOD.”', 'Ollie: “{who}?? I’m going to sit on {who} now.”']
 };

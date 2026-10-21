@@ -16,7 +16,7 @@ A cat fact a day, delivered by Angus, Leo and Ollie. A little home-screen app fo
 - **A fuss:** tap the cat who's talking again to give them a fuss: a purr, some hearts, and the occasional change of expression. The cats keep count, and whoever's being left out this week will say so.
 - **Moods:** each cat has a mood for the day under his name. Rulings, complaints and birthdays change it.
 - **Special days:** add birthdays and gotcha days in Settings and the cats mark the day. They also know Christmas, New Year, Valentine's Day, Mother's Day, Easter, Halloween, Bonfire Night, Black Cat Day and the cat days.
-- **Complaints Department:** a new formal complaint between the residents every day (food theft, unwanted sniffing, bed hogging, unprovoked bopping and more), with the accused's response. You're Management, so **Uphold** or **Dismiss**, and expect a reaction. Complaints against Management get **Apologise** or **Deny everything**. The losing cat often appeals, Management can **File a complaint** of their own, and the points add up to an **Employee of the Month**, announced on the 1st.
+- **Complaints Department:** a new formal complaint between the residents every day (food theft, unwanted sniffing, bed hogging, unprovoked bopping and more), with the accused's response. You're Management, so **Uphold** or **Dismiss**, and expect a reaction. Complaints against Management get **Apologise** or **Deny everything**. The losing cat often appeals, Management can **File a complaint** of their own or **Give praise** for good behaviour, and the points add up to an **Employee of the Month**, announced on the 1st.
 - **Favourites:** save facts with ♥.
 - **Archive:** every fact she's heard, by day and by cat, and how many of the 402 she's found so far.
 - **Weekly quiz:** five questions every Monday, mostly on facts heard recently, with a different cat as quizmaster each week.
@@ -49,7 +49,7 @@ The easiest way is **Album › Record** in the app. Alternatively, record a meow
 - **Everything else the cats say** (moods, special days, appeals, Employee of the Month, the quiz) is in `extras.js`.
 - **Complaints** are in `complaints.js`: `{ from: 'leo', against: 'angus', type: 'Food theft', t: '…', reply: '…' }`. Use `against: 'management'` for complaints about the human (no reply needed).
 
-After changing any file, bump `const VERSION = 'dp-v2'` in `sw.js` (to `dp-v3` and so on), then close and reopen the app twice.
+After changing any file, bump `const VERSION = 'dp-v3'` in `sw.js` (to `dp-v4` and so on), then close and reopen the app twice.
 
 ## Files
 
@@ -60,7 +60,7 @@ After changing any file, bump `const VERSION = 'dp-v2'` in `sw.js` (to `dp-v3` a
 | `app.js` | Daily facts, voices, sounds, complaints, quiz, album, special days, sharing |
 | `facts.js` | The first facts and each cat's personality and lines |
 | `facts-more.js` | More facts, and quiz questions |
-| `extras.js` | Moods, special days, appeals, Employee of the Month, quiz lines |
+| `extras.js` | Moods, special days, praise, appeals, Employee of the Month, quiz lines |
 | `complaints.js` | The Complaints Department |
 | `cats/` | The cats' photos (and any meow recordings) |
 | `sw.js` | Lets it open instantly and work with no signal |
@@ -80,3 +80,7 @@ After changing any file, bump `const VERSION = 'dp-v2'` in `sw.js` (to `dp-v3` a
 - Special days, moods, fuss jealousy, Management's complaints, appeals, Employee of the Month, the weekly quiz, the archive, the album and the meow recorder.
 - 275 more facts (402 in all).
 - Fixed a bug where the visit streak would have reset when the clocks went back.
+
+## What's new in v2.1
+
+- **Give praise:** Management can commend a cat for being a good boy, brave, gentle, good at the vet and more. He'll reply, a jealous housemate may chip in, and praise is worth 2 points towards Employee of the Month.

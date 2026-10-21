@@ -79,15 +79,15 @@
   <div class="scrim" data-close></div>
   <div class="card" role="dialog" aria-modal="true" aria-labelledby="compTitle">
     <div class="card-head"><h2 id="compTitle">Complaints Department</h2><button class="x" type="button" data-close aria-label="Close">×</button></div>
-    <p class="fine">Formal complaints lodged by the residents. You are Management. Your rulings are final (they will appeal).</p>
+    <p class="fine">Formal complaints lodged by the residents. You are Management. Your rulings are final (they will appeal). Good behaviour can be praised.</p>
     <div class="eotm" id="eotm"></div>
-    <button class="big" type="button" id="fileBtn">✍️ File a complaint</button>
+    <div class="two"><button class="big" type="button" id="fileBtn">✍️ File a complaint</button><button class="big" type="button" id="praiseBtn">🌟 Give praise</button></div>
     <form class="fileform" id="fileForm" hidden>
-      <h3 class="lbl">Complaint against</h3>
+      <h3 class="lbl" id="fileWhoLbl">Complaint against</h3>
       <div class="chips" id="fileWho"></div>
-      <label class="field"><span>Type of complaint</span><select id="fileType"></select></label>
+      <label class="field"><span id="fileTypeLbl">Type of complaint</span><select id="fileType"></select></label>
       <label class="field"><span>Details (optional)</span><textarea id="fileText" maxlength="200" rows="2" placeholder="What happened?"></textarea></label>
-      <button class="big dark" type="submit">Lodge complaint</button>
+      <button class="big dark" type="submit" id="fileSubmit">Lodge complaint</button>
     </form>
     <div id="mgmtList" class="complist"></div>
     <h3 class="lbl">Complaints from the residents</h3>
