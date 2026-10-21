@@ -1,7 +1,7 @@
 /* The Daily Purr service worker: opens instantly and works with no signal.
    When you change any file, bump VERSION so phones pick up the new copy. */
-const VERSION = 'dp-v1';
-const FILES = ['./', './index.html', './styles.css', './facts.js', './complaints.js', './app.js', './manifest.webmanifest',
+const VERSION = 'dp-v2';
+const FILES = ['./', './index.html', './styles.css', './facts.js', './facts-more.js', './complaints.js', './extras.js', './app.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/apple-touch-icon.png',
   './cats/angus.jpg', './cats/angus-2.jpg', './cats/leo.jpg', './cats/leo-scared.jpg', './cats/ollie.jpg', './cats/ollie-teeth.jpg'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });

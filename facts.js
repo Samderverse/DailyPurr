@@ -157,7 +157,7 @@ PURR.CATS = {
     bio: 'The eldest and the most sensible, by a distance. Has a white stripe down his forehead and an air of quiet disappointment. Born in the same litter as Leo, though he’d rather you didn’t bring it up. Known for eating other people’s dinners and carrying out unannounced sniff inspections.',
     color: 'var(--angus)', photo: 'cats/angus.jpg', alt: { boxes: 'cats/angus-2.jpg', pet: 'cats/angus-2.jpg' },
     voice: { pitch: 0.7, rate: 0.86 },
-    intro: ['Good morning. Today’s fact:', 'A matter of record:', 'For your education:', 'I’ll keep this brief.', 'Pay attention, this is important.', 'As the eldest, it falls to me to tell you:', 'Allow me to enlighten you.'],
+    intro: ['Today’s fact, if you please:', 'A matter of record:', 'For your education:', 'I’ll keep this brief.', 'Pay attention, this is important.', 'As the eldest, it falls to me to tell you:', 'Allow me to enlighten you.'],
     outro: ['— Angus', 'That is all.', 'You may carry on.', 'Class dismissed.', 'I trust that was useful.'],
     quips: {
       sleep: ['I consider anything under eighteen hours a lack of discipline.', 'I have perfected this. Others in this house have not.'],
@@ -177,6 +177,9 @@ PURR.CATS = {
       family: ['Leo and I share a birthday. We do not share a sense of responsibility.', 'I keep an eye on my brother. Someone has to.'],
       ginger: ['Ginger cats are, of course, the finest. I say this without bias.', 'Note the distinguished white stripe. Not every ginger gets one.'],
       safety: ['Please take note. I intend to remain the eldest for a long time yet.', 'I trust this household will act accordingly.'],
+      home: ['The flat is run to my exacting standards. Mostly.', 'I have inspected every room today. Twice.', 'Indoor life suits a cat of my standing.'],
+      wild: ['I like to think I have something of the tiger about me.', 'My wild relatives would approve of my hunting technique. On the food bowl.'],
+      breeds: ['Pedigree is one thing. Breeding is another. I have the latter.', 'I am, of course, an original.'],
       misc: ['Fascinating, I’m sure you’ll agree.', 'You’re welcome.']
     }
   },
@@ -205,6 +208,9 @@ PURR.CATS = {
       family: ['me and Angus were born together. I got the brains. he got the sitting very still.', 'Angus pretends he doesn’t like me. he does. he groomed my ear once.'],
       ginger: ['not one white hair on me. Angus has a stripe. I’m the full ginger.', 'ginger and proud. well. ginger and quietly pleased.'],
       safety: ['see?? I KNEW things were dangerous.', 'this is why I don’t trust anything.'],
+      home: ['the flat is the best. nothing scary happens here. except the hoover.', 'I know every hiding spot in this flat. there are eleven.'],
+      wild: ['I’m basically a lion. a lion who hides under the bed.', 'glad I’m not a wild cat. outside has birds. and weather.'],
+      breeds: ['I don’t know what breed I am. Angus says “a worrier”.', 'is scaredy a breed? asking for me.'],
       misc: ['…that’s it. that’s the fact. bye.', 'anyway please don’t tell Angus I said that.']
     }
   },
@@ -233,6 +239,9 @@ PURR.CATS = {
       family: ['Angus and Leo are brothers. I am a SURPRISE BONUS.', 'I groom Leo then bite him. it’s called love.'],
       ginger: ['GINGER POWER 🧡', 'three ginger boys in one house. no wonder it’s chaos.'],
       safety: ['ok ok I won’t eat that one. probably.', 'noted. I’ll only lick SAFE things now.'],
+      home: ['the flat is my RACETRACK 🏁', 'I have claimed every room. some of them twice.'],
+      wild: ['I AM A TIGER RAWRR (it came out as a squeak)', 'one day I will be the size of a tiger. any day now.'],
+      breeds: ['my breed is CHAOS. limited edition.', 'I am a rare breed. there is only one of me. thank goodness, says Angus.'],
       misc: ['NEAT 🐾', 'I already knew that. (I did not)']
     }
   }

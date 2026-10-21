@@ -34,6 +34,11 @@
 
   <section class="cats" id="cats" role="tablist" aria-label="Choose a cat"></section>
 
+  <section class="special" id="special" hidden>
+    <span class="em" id="spEmoji"></span>
+    <div><b id="spTitle"></b><p id="spLine"></p></div>
+  </section>
+
   <section class="bubble" id="bubble" aria-live="polite">
     <p class="intro" id="intro"></p>
     <p class="fact" id="fact"></p>
@@ -41,20 +46,25 @@
     <p class="outro" id="outro"></p>
     <div class="cameo" id="cameo" hidden><img id="cameoImg" alt=""><span id="cameoText"></span></div>
   </section>
+  <div class="dots" id="dots" hidden></div>
 
   <div class="actions">
+    <button class="act" type="button" id="backBtn" disabled><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg><span>Back</span></button>
+    <button class="act" type="button" id="anotherBtn"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><span>Another</span></button>
     <button class="act" type="button" id="listenBtn"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Listen</span></button>
-    <button class="act" type="button" id="anotherBtn"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg><span>Another</span></button>
     <button class="act" type="button" id="saveBtn" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>Save</span></button>
     <button class="act" type="button" id="shareBtn"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share</span></button>
   </div>
 
   <nav class="more">
     <button class="pill" type="button" id="favBtn">♥ Favourites <span id="favCount"></span></button>
-    <button class="pill" type="button" id="compBtn">📋 Complaints <span class="new" id="compNew" hidden>1 new</span></button>
-    <button class="pill" type="button" id="meetBtn">Meet the cats</button>
+    <button class="pill" type="button" id="compBtn">📋 Complaints <span class="new" id="compNew" hidden>new</span></button>
+    <button class="pill" type="button" id="archBtn">📚 Archive</button>
+    <button class="pill" type="button" id="quizBtn">🧠 Quiz <span class="new" id="quizNew" hidden>new</span></button>
+    <button class="pill" type="button" id="albumBtn">📷 Album</button>
+    <button class="pill" type="button" id="meetBtn">🐾 Meet the cats</button>
   </nav>
-  <p class="hint" id="tapHint">Tap a cat for their fact of the day. Tap again to give them a fuss.</p>
+  <p class="hint" id="tapHint">Tap a cat for their fact of the day, and tap again to give them a fuss. Swipe the bubble for another fact, or back.</p>
 </main>
 
 <div class="modal" id="m-fav" hidden>
@@ -70,9 +80,60 @@
   <div class="card" role="dialog" aria-modal="true" aria-labelledby="compTitle">
     <div class="card-head"><h2 id="compTitle">Complaints Department</h2><button class="x" type="button" data-close aria-label="Close">×</button></div>
     <p class="fine">Formal complaints lodged by the residents. You are Management. Your rulings are final (they will appeal).</p>
+    <div class="eotm" id="eotm"></div>
+    <button class="big" type="button" id="fileBtn">✍️ File a complaint</button>
+    <form class="fileform" id="fileForm" hidden>
+      <h3 class="lbl">Complaint against</h3>
+      <div class="chips" id="fileWho"></div>
+      <label class="field"><span>Type of complaint</span><select id="fileType"></select></label>
+      <label class="field"><span>Details (optional)</span><textarea id="fileText" maxlength="200" rows="2" placeholder="What happened?"></textarea></label>
+      <button class="big dark" type="submit">Lodge complaint</button>
+    </form>
+    <div id="mgmtList" class="complist"></div>
+    <h3 class="lbl">Complaints from the residents</h3>
     <div class="tally" id="tally"></div>
     <div id="compList" class="complist"></div>
   </div>
+</div>
+
+<div class="modal" id="m-arch" hidden>
+  <div class="scrim" data-close></div>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="archTitle">
+    <div class="card-head"><h2 id="archTitle">Fact archive</h2><button class="x" type="button" data-close aria-label="Close">×</button></div>
+    <p class="prog" id="archProg"></p>
+    <div class="chips" id="archFilters"></div>
+    <div id="archList" class="favlist"></div>
+  </div>
+</div>
+
+<div class="modal" id="m-quiz" hidden>
+  <div class="scrim" data-close></div>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
+    <div class="card-head"><h2 id="quizTitle">The weekly quiz</h2><button class="x" type="button" data-close aria-label="Close">×</button></div>
+    <div id="quizBody" class="quiz"></div>
+  </div>
+</div>
+
+<div class="modal" id="m-album" hidden>
+  <div class="scrim" data-close></div>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="albumTitle">
+    <div class="card-head"><h2 id="albumTitle">Album</h2><button class="x" type="button" data-close aria-label="Close">×</button></div>
+    <div class="chips" id="albumTabs"></div>
+    <label class="big add"><input type="file" id="addPhotos" accept="image/*" multiple><span id="addLbl">Add photos</span></label>
+    <div class="grid" id="albumGrid"></div>
+    <p class="fine">Tap a photo to make it their profile picture. Photos stay on this phone.</p>
+    <button class="pill" type="button" id="resetAvatar" hidden>Use the original profile photo</button>
+    <div class="group meow">
+      <h3 class="lbl" id="meowName">Their meow</h3>
+      <p class="fine" id="meowStatus"></p>
+      <div class="row-btns"><button class="pill rec" type="button" id="recBtn">● Record</button><button class="pill" type="button" id="playMeow" hidden>▶ Play</button><button class="pill" type="button" id="delMeow" hidden>Delete</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="viewer" id="viewer" hidden>
+  <img id="viewImg" alt="">
+  <div class="row-btns"><button class="pill" type="button" id="viewAvatar">Make profile photo</button><button class="pill" type="button" id="viewDelete">Delete</button><button class="pill" type="button" id="viewClose">Close</button></div>
 </div>
 
 <div class="modal" id="m-meet" hidden>
@@ -90,6 +151,7 @@
     <label class="field"><span>Your name</span><input id="sName" maxlength="24" placeholder="So the cats can say hello" autocomplete="off"></label>
     <label class="tog"><input type="checkbox" id="sAuto"><span>Read each fact aloud automatically</span></label>
     <label class="tog"><input type="checkbox" id="sSound" checked><span>Purrs and sounds</span></label>
+    <div class="group"><h3 class="lbl">Special days</h3><p class="fine">Add birthdays and the days the boys came home, and the cats will mark the occasion. The year is optional.</p><div id="spDates" class="dates"></div></div>
     <div class="group"><h3 class="lbl">Hear their voices</h3><div class="row-btns" id="voiceTest"></div></div>
     <p class="fine">Sound plays after you tap something, and your phone’s silent switch may mute it. Voices use your iPhone’s built-in speech, so they work offline.</p>
     <p class="fine">The Daily Purr · Made with love, and a lot of supervision from Angus.</p>
@@ -99,7 +161,9 @@
 <div id="toast" class="toast" role="status" hidden></div>
 
 <script src="facts.js"></script>
+<script src="facts-more.js"></script>
 <script src="complaints.js"></script>
+<script src="extras.js"></script>
 <script src="app.js"></script>
 <script>
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
