@@ -113,7 +113,9 @@ const rulings = () => store.get('dp_rulings', {});
 const appeals = () => store.get('dp_appeals', {});
 const mgmtAll = () => store.get('dp_mcomps', []); // everything Management has filed: complaints and praise
 const isPraise = m => m.kind === 'praise';
-const mcomps = () => mgmtAll().filter(m => !isPraise(m));
+const isBehalf = m => m.kind === 'cat'; // lodged on a cat's behalf, against Management or a person
+const mcomps = () => mgmtAll().filter(m => !isPraise(m) && !isBehalf(m));
+const behalfWho = m => (m.target === 'management' ? 'Management' : m.person);
 const praises = () => mgmtAll().filter(isPraise);
 // For a cat-v-cat complaint that's been ruled on: who won and who lost (after any appeal)
 function outcome(d) {
@@ -131,6 +133,8 @@ function moodOf(id) {
   if (special && special.cats && special.cats.includes(id)) return E[special.kind][id];
   const latest = mgmtAll().filter(m => m.d === day && m.against === id).pop();
   if (latest) return isPraise(latest) ? E.praised[id] : E.accused[id];
+  const mine = mgmtAll().filter(m => isBehalf(m) && m.from === id && m.r && m.rd === day).pop();
+  if (mine) return (mine.r === 'upheld' || mine.r === 'apologise') ? E.smug[id] : E.sulking[id];
   for (const d of [day, day - 1]) { const o = outcome(d); if (o && o.lose === id) return E.sulking[id]; if (o && o.win === id) return E.smug[id]; }
   return pickBy(P.MOODS[id], 'mood' + day + id);
 }
@@ -332,8 +336,9 @@ function renderEotm() {
     <p class="fine">Points: a fuss is 1, a case won is 3, a case lost is −2, praise from Management is 2, a complaint from Management is −2. Fusses this week: ${IDS.map(i => `${CATS[i].name} ${wk[i]}`).join(' · ')}.</p>`;
 }
 function renderMgmt() {
-  const list = mgmtAll().slice().reverse().slice(0, 12);
-  $('#mgmtList').innerHTML = list.length ? `<h3 class="lbl">From Management</h3>` + list.map(m => {
+  const list = mgmtAll().slice().reverse().slice(0, 15);
+  $('#mgmtList').innerHTML = list.length ? `<h3 class="lbl">Filed by you</h3>` + list.map(m => {
+    if (isBehalf(m)) return behalfCard(m);
     const p = isPraise(m), c = m.against;
     return `<article class="complaint mg${p ? ' praise' : ''}" style="--c:${CATS[c].color}">
       <header><span>${p ? 'Commendation' : 'Ref.'} ${p ? 'C' : 'M'}-${String(m.id).slice(-4)}</span><span>${esc(whenLabel(m.d))}</span></header>
@@ -343,6 +348,31 @@ function renderMgmt() {
       ${m.counter ? `<p class="${p ? 'jealous' : 'counter'}">${esc(m.counter)}</p>` : ''}
       <span class="stamp green">${p ? 'Commended' : 'On file'}</span></article>`;
   }).join('') : '';
+  $$('#mgmtList [data-mr]').forEach(b => b.onclick = () => {
+    const all = mgmtAll(), m = all.find(x => String(x.id) === b.dataset.mr); if (!m) return;
+    m.r = b.dataset.v; m.rd = day; store.set('dp_mcomps', all);
+    sound(m.r === 'upheld' || m.r === 'apologise' ? 'purr' : 'chirp', m.from);
+    renderComplaints(); renderCats();
+  });
+}
+// A complaint she lodged for a cat: the cat's statement, then her ruling and the cat's reaction
+function behalfCard(m) {
+  const c = m.from, who = behalfWho(m), mg = m.target === 'management';
+  let ruling;
+  if (m.r) {
+    const label = { upheld: 'Upheld', dismissed: 'Dismissed', apologise: 'Apology issued', deny: 'Denied' }[m.r];
+    const line = mg ? pickBy(P.RULINGS[m.r][c], 'br' + m.id) : fill(pickBy(P.PERSON_RULINGS[m.r][c], 'br' + m.id), { who });
+    ruling = `<span class="stamp${m.r === 'dismissed' || m.r === 'deny' ? '' : ' green'}">${label}</span><p class="react"><b>${esc(CATS[c].name)}:</b> ${esc(line)}</p>`;
+  } else {
+    ruling = `<div class="ruling">${mg ? `<button class="up" type="button" data-mr="${m.id}" data-v="apologise">Apologise</button><button type="button" data-mr="${m.id}" data-v="deny">Deny everything</button>`
+      : `<button class="up" type="button" data-mr="${m.id}" data-v="upheld">Uphold</button><button type="button" data-mr="${m.id}" data-v="dismissed">Dismiss</button>`}</div>`;
+  }
+  return `<article class="complaint behalf" style="--c:${CATS[c].color}">
+    <header><span>Lodged for ${esc(CATS[c].name)} · B-${String(m.id).slice(-4)}</span><span>${esc(whenLabel(m.d))}</span></header>
+    <div class="parties"><span class="duo"><img src="${CATS[c].photo}" alt=""></span><span class="who">${esc(CATS[c].name)}<i>v</i>${esc(who)}</span><span class="type">${esc(m.type)}</span></div>
+    ${m.text ? `<p class="ctext">“${esc(m.text)}”</p>` : ''}
+    <p class="creply"><b>${esc(CATS[c].name)}’s statement:</b> ${esc(m.statement)}</p>
+    ${ruling}</article>`;
 }
 function renderComplaints() {
   renderEotm(); renderMgmt();
@@ -350,7 +380,9 @@ function renderComplaints() {
   const days = Array.from({ length: 14 }, (_, k) => day - k);
   const count = {}; days.forEach(d => { const c = complaintFor(d); count[c.against] = (count[c.against] || 0) + 1; });
   const top = IDS.slice().sort((a, b) => (count[b] || 0) - (count[a] || 0))[0];
-  const sorry = days.filter(d => R[d] === 'apologise').length;
+  const mine = mgmtAll().filter(m => isBehalf(m) && m.target === 'management' && m.d > day - 14);
+  count.management = (count.management || 0) + mine.length;
+  const sorry = days.filter(d => R[d] === 'apologise').length + mine.filter(m => m.r === 'apologise').length;
   $('#tally').innerHTML = `<div><b>${CATS[top].name} (${count[top] || 0})</b><span>most complained about this fortnight</span></div><div><b>${count.management || 0}</b><span>complaints against Management${sorry ? ` · ${sorry} ${sorry === 1 ? 'apology' : 'apologies'}` : ''}</span></div>`;
   $('#compList').innerHTML = days.map(d => {
     const c = complaintFor(d), r = R[d], mg = c.against === 'management';
@@ -393,32 +425,48 @@ function renderComplaints() {
   });
 }
 // Management files a complaint, or gives praise
-let fileAgainst = null, fileMode = 'complaint';
+let fileAgainst = null, fileMode = 'complaint', fileTarget = 'management';
 function openFileForm(mode) {
   const f = $('#fileForm');
   if (!f.hidden && fileMode === mode) { f.hidden = true; return; }
-  fileMode = mode; f.hidden = false; f.classList.toggle('praise', mode === 'praise');
-  const praise = mode === 'praise';
-  $('#fileWhoLbl').textContent = praise ? 'Praise for' : 'Complaint against';
+  fileMode = mode; f.hidden = false; f.classList.toggle('praise', mode === 'praise'); f.classList.toggle('behalf', mode === 'behalf');
+  const praise = mode === 'praise', behalf = mode === 'behalf';
+  $('#fileWhoLbl').textContent = praise ? 'Praise for' : behalf ? 'Complaint from' : 'Complaint against';
   $('#fileTypeLbl').textContent = praise ? 'What for?' : 'Type of complaint';
-  $('#fileText').placeholder = praise ? 'What did he do?' : 'What happened?';
+  $('#fileText').placeholder = praise ? 'What did he do?' : behalf ? 'What happened, in the cat’s words' : 'What happened?';
   $('#fileSubmit').textContent = praise ? 'Give praise' : 'Lodge complaint';
+  $('#fileTargetRow').hidden = !behalf;
+  if (behalf) setTarget(fileTarget);
   $('#fileWho').innerHTML = IDS.map(id => `<button class="chip who" type="button" data-w="${id}" aria-pressed="${fileAgainst === id}" style="--c:${CATS[id].color}"><img src="${CATS[id].photo}" alt="">${CATS[id].name}</button>`).join('');
   $$('#fileWho [data-w]').forEach(b => b.onclick = () => { fileAgainst = b.dataset.w; $$('#fileWho [data-w]').forEach(x => x.setAttribute('aria-pressed', x === b)); });
-  $('#fileType').innerHTML = (praise ? P.PRAISE_TYPES : P.MGMT_TYPES).map(t => `<option>${esc(t)}</option>`).join('');
+  $('#fileType').innerHTML = (praise ? P.PRAISE_TYPES : behalf ? P.CAT_TYPES : P.MGMT_TYPES).map(t => `<option>${esc(t)}</option>`).join('');
   $('#fileText').value = '';
   f.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 $('#fileBtn').onclick = () => openFileForm('complaint');
 $('#praiseBtn').onclick = () => openFileForm('praise');
+$('#behalfBtn').onclick = () => openFileForm('behalf');
+function setTarget(t) {
+  fileTarget = t;
+  $$('#fileTarget [data-t]').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === t));
+  $('#filePerson').hidden = t !== 'person';
+  if (t === 'person') $('#filePerson').focus();
+}
+$$('#fileTarget [data-t]').forEach(b => b.onclick = () => setTarget(b.dataset.t));
 $('#fileForm').onsubmit = e => {
   e.preventDefault();
-  const praise = fileMode === 'praise';
-  if (!fileAgainst) { toast(praise ? 'Who are you praising?' : 'Who is the complaint against?'); return; }
+  const praise = fileMode === 'praise', behalf = fileMode === 'behalf';
+  if (!fileAgainst) { toast(praise ? 'Who are you praising?' : behalf ? 'Which cat is complaining?' : 'Who is the complaint against?'); return; }
+  const person = $('#filePerson').value.trim().slice(0, 30);
+  if (behalf && fileTarget === 'person' && !person) { toast('Who is the complaint against?'); $('#filePerson').focus(); return; }
   const type = $('#fileType').value, id = Date.now(), cat = fileAgainst;
   const text = $('#fileText').value.trim().slice(0, 200);
   let entry;
-  if (praise) {
+  if (behalf) {
+    const target = fileTarget, who = target === 'management' ? 'Management' : person;
+    entry = { id, d: day, kind: 'cat', from: cat, target, person: target === 'person' ? person : '', type, text, statement: fill(pickBy(P.CAT_STATEMENT[cat][type] || P.CAT_STATEMENT[cat]['Something else'], 's' + id), { who }) };
+    if (cat === 'angus') entry.statement = entry.statement.charAt(0).toUpperCase() + entry.statement.slice(1); // Angus always writes properly
+  } else if (praise) {
     const pool = P.PRAISE[cat][type] || P.PRAISE[cat]['Something else'];
     const others = IDS.filter(i => i !== cat), jealous = others[hash('j' + id) % 2];
     const counter = hash('pj' + id) % 10 < 5 ? fill(pickBy(P.PRAISE_JEALOUS[jealous], 'pjl' + id), { who: CATS[cat].name }) : '';
@@ -431,6 +479,7 @@ $('#fileForm').onsubmit = e => {
   const list = mgmtAll(); list.push(entry); store.set('dp_mcomps', list.slice(-80));
   $('#fileForm').hidden = true; fileAgainst = null;
   if (praise) { sound('purr', cat); const r = $('#praiseBtn').getBoundingClientRect(); hearts(r.left + r.width / 2, r.top, 6, ['🌟', '🧡', '✨', '🐾']); toast(`${CATS[cat].name} has been commended`); }
+  else if (behalf) { sound('chirp', cat); toast(`Complaint lodged on ${CATS[cat].name}’s behalf`); }
   else { sound('chirp', cat); toast(`Complaint lodged against ${CATS[cat].name}`); }
   renderComplaints(); renderCats();
   $('#mgmtList').scrollIntoView({ behavior: 'smooth', block: 'start' });

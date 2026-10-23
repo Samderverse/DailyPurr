@@ -1,6 +1,6 @@
 /* The Daily Purr service worker: opens instantly and works with no signal.
    When you change any file, bump VERSION so phones pick up the new copy. */
-const VERSION = 'dp-v3';
+const VERSION = 'dp-v4';
 const FILES = ['./', './index.html', './styles.css', './facts.js', './facts-more.js', './complaints.js', './extras.js', './app.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/apple-touch-icon.png',
   './cats/angus.jpg', './cats/angus-2.jpg', './cats/leo.jpg', './cats/leo-scared.jpg', './cats/ollie.jpg', './cats/ollie-teeth.jpg'];

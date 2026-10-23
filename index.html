@@ -79,12 +79,17 @@
   <div class="scrim" data-close></div>
   <div class="card" role="dialog" aria-modal="true" aria-labelledby="compTitle">
     <div class="card-head"><h2 id="compTitle">Complaints Department</h2><button class="x" type="button" data-close aria-label="Close">×</button></div>
-    <p class="fine">Formal complaints lodged by the residents. You are Management. Your rulings are final (they will appeal). Good behaviour can be praised.</p>
+    <p class="fine">Formal complaints lodged by the residents. You are Management. Your rulings are final (they will appeal). Good behaviour can be praised, and you can lodge complaints for the cats against yourself or anyone else.</p>
     <div class="eotm" id="eotm"></div>
-    <div class="two"><button class="big" type="button" id="fileBtn">✍️ File a complaint</button><button class="big" type="button" id="praiseBtn">🌟 Give praise</button></div>
+    <div class="two"><button class="big" type="button" id="fileBtn">✍️ File a complaint</button><button class="big" type="button" id="praiseBtn">🌟 Give praise</button><button class="big wide" type="button" id="behalfBtn">🐾 Complain for a cat</button></div>
     <form class="fileform" id="fileForm" hidden>
       <h3 class="lbl" id="fileWhoLbl">Complaint against</h3>
       <div class="chips" id="fileWho"></div>
+      <div class="group" id="fileTargetRow" hidden>
+        <h3 class="lbl">Against</h3>
+        <div class="chips" id="fileTarget"><button class="chip" type="button" data-t="management" aria-pressed="true">Me (Management)</button><button class="chip" type="button" data-t="person" aria-pressed="false">Someone else</button></div>
+        <input class="person" id="filePerson" maxlength="30" placeholder="Their name, e.g. the vet" autocomplete="off" hidden>
+      </div>
       <label class="field"><span id="fileTypeLbl">Type of complaint</span><select id="fileType"></select></label>
       <label class="field"><span>Details (optional)</span><textarea id="fileText" maxlength="200" rows="2" placeholder="What happened?"></textarea></label>
       <button class="big dark" type="submit" id="fileSubmit">Lodge complaint</button>

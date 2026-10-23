@@ -253,3 +253,58 @@ PURR.PRAISE_JEALOUS = {
   leo: ['Leo: “what about me? I was good today too. mostly.”', 'Leo: “{who} gets praise and I get the hoover. ok.”'],
   ollie: ['Ollie: “EXCUSE ME. I am RIGHT HERE being GOOD.”', 'Ollie: “{who}?? I’m going to sit on {who} now.”']
 };
+
+/* ---------- Complaints lodged on a cat's behalf, against Management or a named person ----------
+   {who} = "Management" or the person's name. The cat's statement goes under the complaint. */
+PURR.CAT_TYPES = ['Late dinner', 'Not enough treats', 'The hoover', 'Closed door', 'The vet', 'Stole my spot', 'Not enough fusses', 'Moved me off something', 'Bath or washing', 'Something else'];
+PURR.CAT_STATEMENT = {
+  angus: {
+    'Late dinner': ['Dinner was served late by {who}. I have recorded the exact number of minutes. It was too many.', 'I was kept waiting by {who}. A cat of my standing does not wait.'],
+    'Not enough treats': ['The treat allocation from {who} has fallen below acceptable levels.', 'I received one treat from {who}. One. I would like to see the figures.'],
+    'The hoover': ['{who} operated the hoover without notice. Leo has not recovered. Nor, frankly, have I.', 'The hoover was used by {who} during my nap. I find this provocative.'],
+    'Closed door': ['{who} closed a door. I was not consulted. I must know what is on the other side.', 'A door was shut by {who}. This is a breach of my right to inspect.'],
+    'The vet': ['I was subjected to a vet visit, and {who} is responsible. I behaved with great dignity. I would like that on record, along with my objection.', 'I was placed in the carrier under false pretences. {who} knows what they did.'],
+    'Stole my spot': ['{who} is sitting in my spot. They know it is my spot. Everyone knows.', 'My spot was occupied by {who}. I shall be sitting on them until it is returned.'],
+    'Not enough fusses': ['I have not been fussed adequately by {who}. Not that I need it. It is the principle.', '{who} fussed Ollie first. I would like this investigated.'],
+    'Moved me off something': ['{who} moved me off the warm washing. I was supervising it.', 'I was lifted off the laptop by {who}. The work was clearly not that important.'],
+    'Bath or washing': ['{who} attempted to wipe my paws. I am perfectly clean, thank you.', '{who} washed my favourite blanket. It now smells of nothing. Unacceptable.'],
+    'Something else': ['I have a formal grievance against {who}. Details to follow. Possibly never.', 'I wish to lodge my disappointment with {who}. It is considerable.']
+  },
+  leo: {
+    'Late dinner': ['{who} was late with dinner. I thought you’d forgotten me. I was so worried.', 'dinner was late. {who} did it. I waited by the bowl the whole time.'],
+    'Not enough treats': ['{who} only gave me one treat. Ollie got two. I counted.', 'I asked {who} for a treat very politely. from under the bed. nothing happened.'],
+    'The hoover': ['{who} got the hoover out. WITH NO WARNING. I’m still under the bed.', 'the hoover came out. it was {who}. I saw everything. from behind the sofa.'],
+    'Closed door': ['{who} closed the door and I was on the wrong side. I don’t know which side, but it was wrong.', 'a door got shut. by {who}. what’s in there? is it scary? I need to know.'],
+    'The vet': ['the vet trip was {who}’s fault. I trusted {who}. I still do. but I’m upset.', 'the VET. {who} is to blame. I will never forget.'],
+    'Stole my spot': ['{who} is in my hiding spot. where am I supposed to hide now?', 'my spot got taken by {who}. I’m sitting next to it, looking sad.'],
+    'Not enough fusses': ['{who} hasn’t fussed me today. it’s ok. it’s fine. I’ll just be over here.', 'I came out for a fuss and {who} didn’t notice. I went back under the bed.'],
+    'Moved me off something': ['{who} moved me off the bed. I was comfy. I didn’t even bop anyone.', 'I was picked up by {who} without asking. very scary. a bit nice.'],
+    'Bath or washing': ['{who} tried to wipe my face. I didn’t like it. I hid for an hour.', 'my blanket got washed by {who}. it smelled like me. now it smells like flowers. why.'],
+    'Something else': ['{who} did a thing. I don’t know what it was but I didn’t like it.', 'I’d like to complain about {who}. please don’t tell them it was me.']
+  },
+  ollie: {
+    'Late dinner': ['{who} was LATE with DINNER. I nearly STARVED. (I had biscuits ten minutes ago)', 'DINNER LATE. {who} RESPONSIBLE. I demand COMPENSATION (more dinner)'],
+    'Not enough treats': ['{who} said “no more treats”. I would like to SPEAK TO THE MANAGER. oh. wait.', 'not enough treats from {who}. there is NEVER enough treats.'],
+    'The hoover': ['{who} let the hoover out. I FOUGHT IT. I lost. I want a rematch.', 'the hoover monster was released by {who}. Leo is under the bed. I am under the duvet.'],
+    'Closed door': ['{who} SHUT THE DOOR. there could be ANYTHING in there. there could be HAM.', 'door shut by {who}. I will sit here and yell until it opens.'],
+    'The vet': ['I had to go to the vet and it’s {who}’s fault. they said I was “a character”. I want to appeal that too.', 'I went in the carrier. {who} said it was a treat. it was NOT a treat.'],
+    'Stole my spot': ['{who} is in the MIDDLE of the bed. that is MY middle.', '{who} took my spot on the sofa. I am now sitting on {who}. problem solved.'],
+    'Not enough fusses': ['{who} has given me ZERO fusses today. well. three. but I need TWELVE.', 'FUSS DEFICIT. {who} must pay.'],
+    'Moved me off something': ['{who} moved me off the keyboard. I was writing an email. it said “jjjjjjjjjjj”.', 'I was lifted off the counter by {who}. I was only licking the butter.'],
+    'Bath or washing': ['{who} tried to give me a BATH. I am a CAT. I am not a DUCK.', '{who} washed my favourite blanket. it was perfectly gross.'],
+    'Something else': ['{who} did something and I am FURIOUS about it. I forget what.', 'COMPLAINT!!! against {who}!!! for reasons!!!']
+  }
+};
+// The complaining cat reacts when Management rules on a complaint against someone else
+PURR.PERSON_RULINGS = {
+  upheld: {
+    angus: ['Thank you. Justice is served. {who} may apologise in ham.', 'A sensible ruling. I trust {who} has learned something.'],
+    leo: ['I won!! {who} has to say sorry!! (please don’t be cross, {who})', 'really?? thank you!! I’m going to celebrate under the bed.'],
+    ollie: ['GUILTY!!! {who} IS GUILTY!!! 🎉', 'I WIN. {who} owes me TREATS.']
+  },
+  dismissed: {
+    angus: ['I see {who} has friends in high places.', 'Dismissed? I shall be writing to my MP. Larry.'],
+    leo: ['ok. {who} wins. {who} always wins.', 'that’s fine. I’ll just remember it forever.'],
+    ollie: ['THIS IS A COVER-UP. {who} BRIBED YOU.', 'fine. I’m knocking something of {who}’s off the table.']
+  }
+};
